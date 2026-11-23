@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NewsHub — Your Daily News Discovery</title>
+  <meta name="description" content="Browse, search, and discover news articles from publishers around the world." />
+
+  <!-- Bootstrap 5 -->
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+    crossorigin="anonymous"
+  />
+
+  <!-- Bootstrap Icons -->
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+  />
+
+  <!-- Custom styles -->
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════
+     API KEY BANNER (shown when key is not configured)
+     ══════════════════════════════════════════════════════════ -->
+<div id="api-key-banner">
+  <i class="bi bi-exclamation-triangle-fill me-2"></i>
+  <strong>API key not configured.</strong>
+  Open <code>js/config.js</code> and replace <code>YOUR_NEWSAPI_API_KEY</code> with your key from
+  <a href="https://newsapi.org/register" target="_blank" rel="noopener">newsapi.org</a>.
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     NAVBAR
+     ══════════════════════════════════════════════════════════ -->
+<nav id="main-navbar" class="navbar navbar-expand-lg" aria-label="Main navigation">
+  <div class="container-xl">
+
+    <!-- Brand -->
+    <a class="navbar-brand" href="#" id="brand-link">
+      News<span>Hub</span>
+    </a>
+
+    <!-- Search (desktop) -->
+    <form id="search-form" class="d-none d-md-flex ms-4 me-auto" role="search" aria-label="Search articles">
+      <div class="input-group">
+        <input
+          type="search"
+          id="search-input"
+          class="form-control"
+          placeholder="Search topics, events, companies…"
+          aria-label="Search"
+          autocomplete="off"
+        />
+        <button class="btn btn-primary" id="btn-search" type="submit" aria-label="Submit search">
+          <i class="bi bi-search"></i>
+        </button>
+      </div>
+    </form>
+
+    <!-- Mobile toggle -->
+    <button
+      class="navbar-toggler ms-auto border-0"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarMobile"
+      aria-controls="navbarMobile"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <i class="bi bi-list fs-4"></i>
+    </button>
+
+    <!-- Mobile menu -->
+    <div class="collapse navbar-collapse" id="navbarMobile">
+      <form id="search-form-mobile" class="d-flex d-md-none mt-3 mb-2" role="search" aria-label="Search articles mobile">
+        <div class="input-group">
+          <input
+            type="search"
+            id="search-input-mobile"
+            class="form-control"
+            placeholder="Search topics, events…"
+            aria-label="Search"
+            autocomplete="off"
+          />
+          <button class="btn btn-primary" id="btn-search-mobile" type="submit" aria-label="Submit search">
+            <i class="bi bi-search"></i>
+          </button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════════
+     CATEGORY NAVIGATION
+     ══════════════════════════════════════════════════════════ -->
+<nav id="category-nav" aria-label="Category navigation">
+  <div class="container-xl">
+    <ul class="category-tabs" id="category-tabs" role="tablist">
+      <!-- Populated by app.js -->
+    </ul>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════════
+     MAIN CONTENT
+     ══════════════════════════════════════════════════════════ -->
+<main id="main-content">
+  <div class="container-xl">
+    <div class="row g-4">
+
+      <!-- ── Left column: Featured + Feed ── -->
+      <div class="col-lg-8">
+
+        <!-- Active filter / search indicator -->
+        <div id="active-filter-bar" class="d-none mb-3">
+          <span class="text-muted small">
+            Showing results for:&nbsp;
+          </span>
+          <span id="active-filter-label" class="badge bg-primary rounded-pill fs-6 fw-normal"></span>
+          <button
+            id="btn-reset-filters"
+            class="btn btn-sm btn-link text-secondary ms-2 p-0"
+            type="button"
+          >
+            <i class="bi bi-x-circle me-1"></i>Reset
+          </button>
+        </div>
+
+        <!-- Featured article -->
+        <section id="featured-section" aria-label="Featured article">
+          <!-- Populated by app.js -->
+        </section>
+
+        <!-- Latest news heading -->
+        <h2 class="section-heading" id="feed-heading">Latest News</h2>
+
+        <!-- Empty state -->
+        <div id="empty-state" role="status" aria-live="polite">
+          <div class="empty-icon">📭</div>
+          <h5 class="fw-semibold">No articles found</h5>
+          <p class="text-muted">Try a different search term or category.</p>
+          <button class="btn btn-outline-primary btn-sm" id="btn-empty-reset">
+            Reset to home
+          </button>
+        </div>
+
+        <!-- Error state -->
+        <div id="error-state" role="alert" aria-live="assertive">
+          <div class="error-icon">⚠️</div>
+          <h5 class="fw-semibold text-danger" id="error-title">Something went wrong</h5>
+          <p class="text-muted" id="error-message">An error occurred while fetching articles.</p>
+          <button class="btn btn-outline-danger btn-sm" id="btn-retry">
+            <i class="bi bi-arrow-clockwise me-1"></i>Retry
+          </button>
+        </div>
+
+        <!-- News grid -->
+        <div
+          id="news-grid"
+          class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-2 g-3"
+          aria-label="News articles"
+        >
+          <!-- Populated by app.js -->
+        </div>
+
+        <!-- Pagination -->
+        <div id="pagination-wrapper" aria-label="Pagination">
+          <!-- Populated by app.js -->
+        </div>
+        <p id="pagination-info" class="text-center text-muted small mt-1"></p>
+
+      </div><!-- /col-lg-8 -->
+
+      <!-- ── Right column: Sidebar ── -->
+      <aside class="col-lg-4" id="sidebar" aria-label="Sidebar">
+
+        <!-- Source filter -->
+        <div class="sidebar-card">
+          <h3 class="sidebar-title"><i class="bi bi-newspaper me-2"></i>News Sources</h3>
+
+          <div id="sources-loading" class="text-muted small text-center py-3">
+            <div class="spinner-border spinner-border-sm me-1" role="status"></div>
+            Loading sources…
+          </div>
+
+          <div id="source-list-wrapper" class="d-none">
+            <input
+              type="text"
+              id="source-search"
+              class="form-control form-control-sm mb-2 filter-control"
+              placeholder="Filter sources…"
+              aria-label="Filter sources"
+            />
+            <div id="source-list" role="group" aria-label="News source checkboxes">
+              <!-- Populated by app.js -->
+            </div>
+            <div class="mt-2 d-flex gap-2">
+              <button id="btn-apply-sources" class="btn btn-primary btn-sm flex-fill">
+                <i class="bi bi-funnel-fill me-1"></i>Apply
+              </button>
+              <button id="btn-reset-sources" class="btn btn-outline-secondary btn-sm flex-fill">
+                Reset
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="sidebar-card">
+          <h3 class="sidebar-title"><i class="bi bi-sliders me-2"></i>Filters &amp; Sort</h3>
+
+          <label class="filter-label" for="filter-sort">Sort By</label>
+          <select id="filter-sort" class="form-select form-select-sm mb-3 filter-control" aria-label="Sort by">
+            <!-- Populated by app.js -->
+          </select>
+
+          <label class="filter-label" for="filter-language">Language</label>
+          <select id="filter-language" class="form-select form-select-sm mb-3 filter-control" aria-label="Language">
+            <!-- Populated by app.js -->
+          </select>
+
+          <label class="filter-label" for="filter-from">From Date</label>
+          <input type="date" id="filter-from" class="form-control form-control-sm mb-3 filter-control" aria-label="From date" />
+
+          <label class="filter-label" for="filter-to">To Date</label>
+          <input type="date" id="filter-to" class="form-control form-control-sm mb-3 filter-control" aria-label="To date" />
+
+          <button id="btn-apply-filters" class="btn btn-primary btn-sm w-100 mb-2" disabled>
+            <i class="bi bi-check2 me-1"></i>Apply Filters
+          </button>
+          <button id="btn-reset-all-filters" class="btn btn-outline-secondary btn-sm w-100 d-none">
+            <i class="bi bi-arrow-counterclockwise me-1"></i>Reset All
+          </button>
+        </div>
+
+      </aside><!-- /sidebar -->
+
+    </div><!-- /row -->
+  </div><!-- /container -->
+</main>
+
+<!-- ══════════════════════════════════════════════════════════
+     ARTICLE DETAIL MODAL
+     ══════════════════════════════════════════════════════════ -->
+<div
+  class="modal fade"
+  id="article-modal"
+  tabindex="-1"
+  aria-labelledby="modal-title"
+  aria-modal="true"
+  role="dialog"
+>
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body px-4 pb-4">
+        <img id="modal-image" src="" alt="" loading="lazy" />
+
+        <h2 id="modal-title"></h2>
+
+        <div class="modal-meta">
+          <span id="modal-source"><strong>Source:</strong> <span id="modal-source-name"></span></span>
+          <span id="modal-author-wrap" class="d-none"><strong>Author:</strong> <span id="modal-author"></span></span>
+          <span id="modal-date-wrap" class="d-none"><strong>Published:</strong> <span id="modal-date"></span></span>
+        </div>
+
+        <div id="modal-description" class="text-body"></div>
+
+        <div id="modal-content-wrapper" class="d-none">
+          <div id="modal-content"></div>
+          <p class="content-note">
+            <i class="bi bi-info-circle me-1"></i>
+            This is a preview snippet from the original article. The full article is available at the publisher's website.
+          </p>
+        </div>
+
+        <a
+          id="btn-read-full"
+          href="#"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn btn-primary mt-3"
+        >
+          <i class="bi bi-box-arrow-up-right me-2"></i>Read Full Article
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     GLOBAL LOADING OVERLAY
+     ══════════════════════════════════════════════════════════ -->
+<div id="loading-overlay" role="status" aria-label="Loading articles">
+  <div class="spinner-ring" aria-hidden="true"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     FOOTER
+     ══════════════════════════════════════════════════════════ -->
+<footer id="main-footer">
+  <div class="container-xl">
+    <div class="row align-items-center">
+      <div class="col-md-6">
+        <span class="fw-bold text-dark">NewsHub</span>
+        &nbsp;&mdash;&nbsp;Powered by
+        <a href="https://newsapi.org/" target="_blank" rel="noopener">NewsAPI</a>
+      </div>
+      <div class="col-md-6 text-md-end mt-2 mt-md-0">
+        News data is provided for personal, non-commercial use.
+        &copy; <span id="footer-year"></span> NewsHub
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Bootstrap JS Bundle -->
+<script
+  src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+  integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+  crossorigin="anonymous"
+></script>
+
+<!-- App scripts (load order matters) -->
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>
