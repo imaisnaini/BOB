@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mau Gak? 💌</title>
+  <style>
+    /* =========================================================
+       CSS CUSTOM PROPERTIES
+       ========================================================= */
+    :root {
+      --bg: #fff0f6;
+      --surface: #fff;
+      --accent: #f472b6;
+      --accent2: #a78bfa;
+      --accent3: #34d399;
+      --text: #1f1235;
+      --muted: #6b5b7b;
+      --radius: 1.25rem;
+      --shadow: 0 4px 24px rgba(167,139,250,.18);
+      --transition: 0.35s cubic-bezier(.4,0,.2,1);
+      --font: -apple-system, "Rounded Mplus 1c", "Nunito", ui-rounded, system-ui, sans-serif;
+    }
+
+    /* =========================================================
+       RESET & BASE
+       ========================================================= */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      min-height: 100dvh;
+    }
+
+    body {
+      font-family: var(--font);
+      background: linear-gradient(135deg, #fff0f6 0%, #ede9fe 50%, #d1fae5 100%);
+      background-attachment: fixed;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100dvh;
+      overflow-x: hidden;
+    }
+
+    /* =========================================================
+       SCENE SYSTEM
+       ========================================================= */
+    section {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--transition);
+      z-index: 1;
+    }
+
+    section[hidden] {
+      display: none !important;
+    }
+
+    section.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      section { transition: none; }
+    }
+
+    /* =========================================================
+       CARD BASE
+       ========================================================= */
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 2rem 1.5rem;
+      max-width: 420px;
+      width: 100%;
+      text-align: center;
+    }
+
+    /* =========================================================
+       BUTTONS
+       ========================================================= */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      min-width: 44px;
+      padding: 0.65rem 1.5rem;
+      border: none;
+      border-radius: 999px;
+      font-family: var(--font);
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform .15s, box-shadow .15s;
+      text-decoration: none;
+    }
+
+    .btn:focus-visible {
+      outline: 3px solid var(--accent2);
+      outline-offset: 3px;
+    }
+
+    .btn:active { transform: scale(.96); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+      box-shadow: 0 2px 12px rgba(244,114,182,.35);
+    }
+
+    .btn-primary:hover { box-shadow: 0 4px 20px rgba(244,114,182,.5); transform: translateY(-1px); }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 1.5px solid #e5e7eb;
+    }
+
+    .btn-ghost:hover { background: #f3f4f6; }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #f87171, #fb923c);
+      color: #fff;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .btn { transition: none; }
+      .btn:active { transform: none; }
+      .btn-primary:hover { transform: none; }
+    }
+
+    /* =========================================================
+       SCENE 1 — LOADING
+       ========================================================= */
+    #scene1 .card { gap: 1.25rem; display: flex; flex-direction: column; align-items: center; }
+
+    .loading-title { font-size: 1.3rem; font-weight: 800; color: var(--text); }
+    .loading-sub { font-size: .9rem; color: var(--muted); }
+
+    .progress-wrap {
+      width: 100%;
+      height: 12px;
+      background: #f3e8ff;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      border-radius: 999px;
+      transition: width .4s ease;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .progress-bar { transition: none; }
+    }
+
+    .progress-label { font-size: .85rem; color: var(--muted); font-weight: 600; }
+
+    /* =========================================================
+       SCENE 2 — WRAPPED
+       ========================================================= */
+    #scene2 .card { overflow: hidden; padding: 0; position: relative; }
+
+    .wrapped-viewport {
+      width: 100%;
+      overflow: hidden;
+      touch-action: pan-y;
+    }
+
+    .wrapped-track {
+      display: flex;
+      transition: transform .35s cubic-bezier(.4,0,.2,1);
+      will-change: transform;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .wrapped-track { transition: none; }
+    }
+
+    .wrapped-slide {
+      flex: 0 0 100%;
+      padding: 2rem 1.5rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: .75rem;
+      min-height: 300px;
+    }
+
+    .wrapped-emoji { font-size: 3rem; line-height: 1; }
+    .wrapped-label { font-size: .8rem; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); font-weight: 700; }
+    .wrapped-value { font-size: 2.5rem; font-weight: 900; color: var(--text); line-height: 1.1; }
+    .wrapped-desc { font-size: .95rem; color: var(--muted); }
+
+    .wrapped-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: .75rem 1rem;
+      border-top: 1px solid #f3e8ff;
+      gap: .5rem;
+    }
+
+    .wrapped-dots {
+      display: flex;
+      gap: .4rem;
+      align-items: center;
+    }
+
+    .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #e5e7eb;
+      transition: background .2s, transform .2s;
+    }
+
+    .dot.active { background: var(--accent); transform: scale(1.3); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .dot { transition: none; }
+      .dot.active { transform: none; }
+    }
+
+    .arrow-btn {
+      width: 36px; height: 36px; min-width: 44px; min-height: 44px;
+      border-radius: 50%;
+      border: 1.5px solid #e5e7eb;
+      background: #fff;
+      cursor: pointer;
+      font-size: 1.1rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .15s;
+    }
+
+    .arrow-btn:hover { background: #f9fafb; }
+    .arrow-btn:focus-visible { outline: 3px solid var(--accent2); outline-offset: 2px; }
+    .arrow-btn:disabled { opacity: .35; cursor: default; }
+
+    /* =========================================================
+       SCENE 3 — QUESTION
+       ========================================================= */
+    #scene3 .card { gap: 1.25rem; display: flex; flex-direction: column; align-items: center; }
+
+    .question-text {
+      font-size: 1.5rem;
+      font-weight: 900;
+      line-height: 1.3;
+      color: var(--text);
+    }
+
+    .question-sub { font-size: .95rem; color: var(--muted); }
+
+    .question-btns {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 100%;
+      margin-top: .5rem;
+      position: relative;
+    }
+
+    /* =========================================================
+       SCENE 4 — DODGE BUTTON (positioned absolutely via JS)
+       ========================================================= */
+    #btn-no {
+      position: fixed;
+      z-index: 10;
+      transition: left .25s cubic-bezier(.4,0,.2,1), top .25s cubic-bezier(.4,0,.2,1);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #btn-no { transition: none; }
+    }
+
+    .rejection-msg {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 2rem 1.5rem;
+      max-width: 360px;
+      width: 90%;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      align-items: center;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 20;
+    }
+
+    .rejection-msg p { font-size: 1.1rem; font-weight: 700; color: var(--text); }
+    .rejection-msg span { font-size: .9rem; color: var(--muted); }
+
+    /* =========================================================
+       SCENE 5 — YES / CONFETTI / TICKET
+       ========================================================= */
+    #scene5 .card { gap: 1.25rem; display: flex; flex-direction: column; align-items: center; }
+
+    #confetti-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 50;
+    }
+
+    .ticket-title { font-size: 1.5rem; font-weight: 900; color: var(--text); }
+    .ticket-sub { font-size: .9rem; color: var(--muted); }
+
+    .ticket-form {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: .85rem;
+      margin-top: .5rem;
+    }
+
+    .ticket-form label {
+      font-size: .85rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-align: left;
+      display: block;
+      margin-bottom: .2rem;
+    }
+
+    .ticket-form select,
+    .ticket-form input[type="date"] {
+      width: 100%;
+      padding: .6rem .85rem;
+      border: 1.5px solid #e5e7eb;
+      border-radius: .75rem;
+      font-family: var(--font);
+      font-size: 1rem;
+      color: var(--text);
+      background: #fafafa;
+      outline: none;
+      min-height: 44px;
+    }
+
+    .ticket-form select:focus,
+    .ticket-form input[type="date"]:focus {
+      border-color: var(--accent2);
+      box-shadow: 0 0 0 3px rgba(167,139,250,.18);
+    }
+
+    .error-inline {
+      font-size: .85rem;
+      color: #dc2626;
+      font-weight: 600;
+      text-align: left;
+    }
+
+    /* =========================================================
+       ARIA LIVE REGION
+       ========================================================= */
+    .sr-only {
+      position: absolute;
+      width: 1px; height: 1px;
+      padding: 0; margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      white-space: nowrap;
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ARIA live region for screen reader announcements -->
+<div id="live-region" aria-live="polite" aria-atomic="true" class="sr-only"></div>
+
+<!-- =========================================================
+     SCENE 1 — LOADING
+     ========================================================= -->
+<section id="scene1" aria-label="Memuat perasaan">
+  <div class="card">
+    <div style="font-size:2.5rem" aria-hidden="true">💌</div>
+    <p class="loading-title" id="s1-title">Mengunggah perasaan...</p>
+    <p class="loading-sub" id="s1-sub">Mohon tunggu sebentar ya 🙏</p>
+    <div class="progress-wrap" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="s1-progress-wrap">
+      <div class="progress-bar" id="s1-bar"></div>
+    </div>
+    <p class="progress-label" id="s1-pct">0%</p>
+    <button id="btn-force" class="btn btn-primary" hidden
+      aria-label="Paksa lanjut ke halaman berikutnya">
+      Paksa lanjut →
+    </button>
+  </div>
+</section>
+
+<!-- =========================================================
+     SCENE 2 — WRAPPED
+     ========================================================= -->
+<section id="scene2" hidden aria-label="Statistik perasaan">
+  <div class="card">
+    <div class="wrapped-viewport" id="wrapped-viewport">
+      <div class="wrapped-track" id="wrapped-track" aria-live="polite">
+        <!-- slides inserted by JS -->
+      </div>
+    </div>
+    <div class="wrapped-nav">
+      <button class="arrow-btn" id="btn-prev" aria-label="Kartu sebelumnya">‹</button>
+      <div class="wrapped-dots" id="wrapped-dots" role="tablist" aria-label="Navigasi kartu"></div>
+      <button class="arrow-btn" id="btn-next" aria-label="Kartu selanjutnya">›</button>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================
+     SCENE 3 — QUESTION
+     ========================================================= -->
+<section id="scene3" hidden aria-label="Pertanyaan">
+  <div class="card">
+    <div style="font-size:2.5rem" aria-hidden="true">🥺</div>
+    <p class="question-text" id="s3-question"></p>
+    <p class="question-sub" id="s3-sub"></p>
+    <div class="question-btns" id="question-btns">
+      <button id="btn-yes" class="btn btn-primary" style="font-size:1.1rem;padding:.75rem 2rem">
+        Mau ✨
+      </button>
+      <!-- btn-no injected fixed-positioned by JS -->
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================
+     SCENE 4 — REJECTION MESSAGE (overlay inside scene3)
+     ========================================================= -->
+<!-- Rendered dynamically as overlay, see JS -->
+
+<!-- =========================================================
+     SCENE 5 — YES / DATE TICKET
+     ========================================================= -->
+<section id="scene5" hidden aria-label="Tiket kencan">
+  <canvas id="confetti-canvas" aria-hidden="true"></canvas>
+  <div class="card" id="ticket-card">
+    <div style="font-size:2.5rem" aria-hidden="true">🎉</div>
+    <p class="ticket-title" id="s5-title"></p>
+    <p class="ticket-sub" id="s5-sub"></p>
+    <div class="ticket-form">
+      <div>
+        <label for="select-place">Tempat kencan</label>
+        <select id="select-place" aria-required="true">
+          <!-- options inserted by JS -->
+        </select>
+      </div>
+      <div>
+        <label for="input-date">Tanggal</label>
+        <input type="date" id="input-date" aria-required="true" />
+        <p class="error-inline" id="date-error" hidden aria-live="assertive"></p>
+      </div>
+      <button id="btn-wa" class="btn btn-primary" style="margin-top:.25rem">
+        Konfirmasi via WhatsApp 💬
+      </button>
+    </div>
+  </div>
+</section>
+
+<script>
+/* =========================================================
+   CONFIG — satu-satunya sumber semua teks & konfigurasi
+   ========================================================= */
+const CONFIG = {
+  /* Personalisasi default (di-override oleh URL params) */
+  defaultTo:   "kamu",
+  defaultFrom: "aku",
+
+  /* Nomor WhatsApp format internasional (tanpa + dan tanpa 0 di depan) */
+  phone: "62812345678",
+
+  /* Kartu Wrapped — 4 kartu statistik palsu yang lucu */
+  wrappedCards: [
+    {
+      emoji: "😳",
+      label: "Jumlah kali kamu kepikiran",
+      value: "1.247×",
+      desc: "dalam 30 hari terakhir"
+    },
+    {
+      emoji: "🕐",
+      label: "Total waktu yang dihabiskan",
+      value: "47 jam",
+      desc: "cuma buat stalking story kamu"
+    },
+    {
+      emoji: "💬",
+      label: "Pesan yang ditulis tapi nggak jadi dikirim",
+      value: "83 draft",
+      desc: "semuanya bilang 'aku suka kamu'"
+    },
+    {
+      emoji: "💖",
+      label: "Tingkat perasaan",
+      value: "9.9 / 10",
+      desc: "data ini beneran akurat, percaya deh"
+    }
+  ],
+
+  /* Label tombol di kartu terakhir Wrapped */
+  wrappedLastBtnLabel: "Lanjut ke bagian penting →",
+
+  /* Label tombol navigasi Wrapped */
+  wrappedBtnNext: "›",
+  wrappedBtnPrev: "‹",
+
+  /* Teks scene 3 */
+  questionText: ", mau jadi pacar aku?",   /* diprefiks oleh nama `to` */
+  questionSub:  "Jujur aja ya, nggak apa-apa kok 🤍",
+
+  /* Label tombol utama */
+  btnYesLabel:   "Mau ✨",
+  btnNoLabel:    "Nggak dulu",
+
+  /* Label dodge — tepat 5 item, satu per kabur */
+  dodgeLabels: [
+    "Yakin? 👀",
+    "Coba lagi 😅",
+    "Hampir... 🫣",
+    "Dikit lagi 🥹",
+    "Oke, jujur aja 😇"
+  ],
+
+  /* Pesan penolakan setelah 5 kali kabur */
+  rejectionMsg:    "Makasih udah jujur 🙏",
+  rejectionSub:    "Kita tetep temenan ya. Nggak ada yang berubah kok, tenang aja.",
+  rejectionClose:  "Tutup",
+
+  /* Scene 5 */
+  yesTitle:       ", makasih ya! 🥹",    /* diprefiks oleh nama `to` */
+  yesSub:         "Yuk, atur kencan pertama kita:",
+  places:         ["Ngopi bareng ☕", "Nonton film 🎬", "Mie ayam dulu 🍜", "Jalan-jalan sore 🌇", "Main board game 🎲"],
+  placeDefault:   "-- Pilih tempat --",
+  confirmBtn:     "Konfirmasi via WhatsApp 💬",
+  errorNoDate:    "Tanggal kencannya belum dipilih nih, isi dulu ya 📅",
+  waMessage:      (to, from, place, date) =>
+    `Halo! Ini dari ${from} 💌\n${to} udah setuju buat kencan!\n\n📍 Tempat: ${place}\n📅 Tanggal: ${date}\n\nSampai ketemu ya! 🎉`,
+
+  /* Loading scene */
+  loadingTitle: "Mengunggah perasaan...",
+  loadingSub:   "Mohon tunggu sebentar ya 🙏",
+  forceBtnLabel: "Paksa lanjut →",
+};
+
+/* =========================================================
+   STATE
+   ========================================================= */
+const STATE = {
+  currentScene: 0,     /* 1-indexed */
+  to:   CONFIG.defaultTo,
+  from: CONFIG.defaultFrom,
+  wrappedIndex: 0,
+  dodgeCount: 0,       /* satu-satunya sumber kebenaran kabur */
+  dodgeDebounce: false,
+  rejectionShown: false,
+};
+
+/* =========================================================
+   HELPERS
+   ========================================================= */
+function announce(msg) {
+  const el = document.getElementById("live-region");
+  if (el) { el.textContent = ""; setTimeout(() => { el.textContent = msg; }, 50); }
+}
+
+function formatDate(isoStr) {
+  if (!isoStr) return "";
+  const [y, m, d] = isoStr.split("-");
+  const months = ["Januari","Februari","Maret","April","Mei","Juni",
+                  "Juli","Agustus","September","Oktober","November","Desember"];
+  return `${parseInt(d)} ${months[parseInt(m)-1]} ${y}`;
+}
+
+/* =========================================================
+   goToScene — satu-satunya cara berpindah scene
+   ========================================================= */
+function goToScene(n) {
+  try {
+    const prev = document.getElementById("scene" + STATE.currentScene);
+    if (prev) {
+      prev.classList.remove("active");
+      /* sembunyikan setelah transisi selesai — pakai setTimeout, bukan transitionend */
+      setTimeout(() => { if (prev) prev.setAttribute("hidden", ""); }, 400);
+    }
+
+    STATE.currentScene = n;
+    const next = document.getElementById("scene" + n);
+    if (!next) { console.error("[goToScene] scene tidak ditemukan:", n); return; }
+
+    next.removeAttribute("hidden");
+    /* Delay satu frame supaya transisi opacity berjalan */
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        next.classList.add("active");
+        announce("Halaman " + n + " ditampilkan");
+      });
+    });
+
+    /* Inisialisasi scene */
+    if (n === 1) initScene1();
+    if (n === 2) initScene2();
+    if (n === 3) initScene3();
+    if (n === 5) initScene5();
+  } catch (e) {
+    console.error("[goToScene] error:", e);
+  }
+}
+
+/* =========================================================
+   URL PARAMS — baca ?to=, ?from=, ?scene=
+   ========================================================= */
+(function parseParams() {
+  try {
+    const p = new URLSearchParams(window.location.search);
+    if (p.get("to"))   STATE.to   = p.get("to").trim()   || CONFIG.defaultTo;
+    if (p.get("from")) STATE.from = p.get("from").trim() || CONFIG.defaultFrom;
+  } catch (e) { console.error("[parseParams]", e); }
+})();
+
+/* =========================================================
+   SCENE 1 — LOADING
+   ========================================================= */
+function initScene1() {
+  try {
+    const bar    = document.getElementById("s1-bar");
+    const pct    = document.getElementById("s1-pct");
+    const wrap   = document.getElementById("s1-progress-wrap");
+    const title  = document.getElementById("s1-title");
+    const sub    = document.getElementById("s1-sub");
+    const forceBtn = document.getElementById("btn-force");
+
+    /* Pastikan teks dari CONFIG */
+    title.textContent = CONFIG.loadingTitle;
+    sub.textContent   = CONFIG.loadingSub;
+    forceBtn.textContent = CONFIG.forceBtnLabel;
+    forceBtn.setAttribute("hidden", "");
+
+    /* Animasi progress bar kosmetik — naik ke 99%, macet di sana */
+    let current = 0;
+    const target = 99;
+    const steps = [
+      { to: 30, delay: 300 },
+      { to: 55, delay: 600 },
+      { to: 72, delay: 900 },
+      { to: 85, delay: 1200 },
+      { to: 92, delay: 1800 },
+      { to: 99, delay: 2800 },
+    ];
+
+    steps.forEach(({ to, delay }) => {
+      setTimeout(() => {
+        bar.style.width = to + "%";
+        pct.textContent = to + "%";
+        wrap.setAttribute("aria-valuenow", to);
+      }, delay);
+    });
+
+    /* ✅ (a) Tombol "Paksa lanjut" muncul 4 detik setelah load
+       Sepenuhnya independen dari progress bar, animasi CSS, atau rAF */
+    setTimeout(() => {
+      forceBtn.removeAttribute("hidden");
+      forceBtn.focus();
+      announce(CONFIG.forceBtnLabel + " — tekan untuk melanjutkan");
+    }, 4000);
+
+    /* Klik tombol → scene 2 */
+    forceBtn.onclick = () => goToScene(2);
+
+  } catch (e) { console.error("[initScene1]", e); }
+}
+
+/* =========================================================
+   SCENE 2 — WRAPPED
+   ========================================================= */
+function initScene2() {
+  try {
+    const track    = document.getElementById("wrapped-track");
+    const dotsWrap = document.getElementById("wrapped-dots");
+    const btnPrev  = document.getElementById("btn-prev");
+    const btnNext  = document.getElementById("btn-next");
+    const cards    = CONFIG.wrappedCards;
+    const total    = cards.length;
+
+    /* Build slides */
+    track.innerHTML = "";
+    dotsWrap.innerHTML = "";
+
+    cards.forEach((c, i) => {
+      const slide = document.createElement("div");
+      slide.className = "wrapped-slide";
+      slide.setAttribute("role", "tabpanel");
+      slide.id = "wrapped-slide-" + i;
+
+      const emoji = document.createElement("div");
+      emoji.className = "wrapped-emoji";
+      emoji.setAttribute("aria-hidden", "true");
+      emoji.textContent = c.emoji;
+
+      const label = document.createElement("p");
+      label.className = "wrapped-label";
+      label.textContent = c.label;
+
+      const value = document.createElement("p");
+      value.className = "wrapped-value";
+      value.textContent = c.value;
+
+      const desc = document.createElement("p");
+      desc.className = "wrapped-desc";
+      desc.textContent = c.desc;
+
+      slide.append(emoji, label, value, desc);
+
+      /* Kartu terakhir punya tombol lanjut */
+      if (i === total - 1) {
+        const btn = document.createElement("button");
+        btn.className = "btn btn-primary";
+        btn.style.marginTop = ".75rem";
+        btn.textContent = CONFIG.wrappedLastBtnLabel;
+        btn.onclick = () => goToScene(3);
+        slide.append(btn);
+      }
+
+      track.append(slide);
+
+      /* Dot */
+      const dot = document.createElement("button");
+      dot.className = "dot" + (i === 0 ? " active" : "");
+      dot.setAttribute("role", "tab");
+      dot.setAttribute("aria-selected", i === 0 ? "true" : "false");
+      dot.setAttribute("aria-controls", "wrapped-slide-" + i);
+      dot.setAttribute("aria-label", "Kartu " + (i + 1));
+      dot.addEventListener("click", () => goToWrapped(i));
+      dotsWrap.append(dot);
+    });
+
+    STATE.wrappedIndex = 0;
+    updateWrapped(false);
+
+    /* Swipe via pointer events */
+    let startX = null, startY = null;
+    const vp = document.getElementById("wrapped-viewport");
+
+    vp.addEventListener("pointerdown", (e) => {
+      startX = e.clientX; startY = e.clientY;
+    }, { passive: true });
+
+    vp.addEventListener("pointerup", (e) => {
+      if (startX === null) return;
+      const dx = e.clientX - startX;
+      const dy = Math.abs(e.clientY - startY);
+      if (Math.abs(dx) > 40 && dy < 60) {
+        if (dx < 0) goToWrapped(STATE.wrappedIndex + 1);
+        else goToWrapped(STATE.wrappedIndex - 1);
+      }
+      startX = null;
+    }, { passive: true });
+
+    btnPrev.onclick = () => goToWrapped(STATE.wrappedIndex - 1);
+    btnNext.onclick = () => goToWrapped(STATE.wrappedIndex + 1);
+
+  } catch (e) { console.error("[initScene2]", e); }
+}
+
+function goToWrapped(idx) {
+  try {
+    const total = CONFIG.wrappedCards.length;
+    idx = Math.max(0, Math.min(total - 1, idx));
+    STATE.wrappedIndex = idx;
+    updateWrapped(true);
+  } catch (e) { console.error("[goToWrapped]", e); }
+}
+
+function updateWrapped(animate) {
+  try {
+    const track    = document.getElementById("wrapped-track");
+    const dotsWrap = document.getElementById("wrapped-dots");
+    const btnPrev  = document.getElementById("btn-prev");
+    const btnNext  = document.getElementById("btn-next");
+    const i        = STATE.wrappedIndex;
+    const total    = CONFIG.wrappedCards.length;
+
+    if (!animate) track.style.transition = "none";
+    track.style.transform = `translateX(-${i * 100}%)`;
+    if (!animate) requestAnimationFrame(() => { track.style.transition = ""; });
+
+    const dots = dotsWrap.querySelectorAll(".dot");
+    dots.forEach((d, j) => {
+      d.classList.toggle("active", j === i);
+      d.setAttribute("aria-selected", j === i ? "true" : "false");
+    });
+
+    btnPrev.disabled = i === 0;
+    btnNext.disabled = i === total - 1;
+    announce("Kartu " + (i + 1) + " dari " + total + ": " + CONFIG.wrappedCards[i].label);
+  } catch (e) { console.error("[updateWrapped]", e); }
+}
+
+/* =========================================================
+   SCENE 3 — QUESTION + DODGE LOGIC
+   ========================================================= */
+function initScene3() {
+  try {
+    /* Reset state */
+    STATE.dodgeCount    = 0;
+    STATE.dodgeDebounce = false;
+    STATE.rejectionShown = false;
+
+    /* Teks */
+    const q = document.getElementById("s3-question");
+    const s = document.getElementById("s3-sub");
+    q.textContent = STATE.to + CONFIG.questionText;
+    s.textContent = CONFIG.questionSub;
+
+    /* Tombol Mau */
+    const btnYes = document.getElementById("btn-yes");
+    btnYes.textContent = CONFIG.btnYesLabel;
+    btnYes.onclick = () => goToScene(5);
+
+    /* Buat / reset tombol "Nggak dulu" */
+    let btnNo = document.getElementById("btn-no");
+    if (!btnNo) {
+      btnNo = document.createElement("button");
+      btnNo.id = "btn-no";
+      btnNo.className = "btn btn-ghost";
+      document.body.append(btnNo);
+    }
+    btnNo.textContent = CONFIG.btnNoLabel;
+    btnNo.style.cssText = "";   /* reset gaya inline */
+    btnNo.className = "btn btn-ghost";
+    btnNo.removeAttribute("hidden");
+
+    /* Posisi awal: di sebelah kanan btn-yes */
+    positionNoButtonInitial(btnNo);
+
+    /* =========================================================
+       DODGE LOGIC
+       ========================================================= */
+    attachDodgeHandlers(btnNo);
+
+  } catch (e) { console.error("[initScene3]", e); }
+}
+
+function positionNoButtonInitial(btn) {
+  try {
+    const qBtns = document.getElementById("question-btns");
+    const rect  = qBtns.getBoundingClientRect();
+    btn.style.position = "fixed";
+    btn.style.left = (rect.left + rect.width / 2 + 8) + "px";
+    btn.style.top  = (rect.top + (rect.height - 44) / 2) + "px";
+  } catch(e) { console.error("[positionNoButtonInitial]", e); }
+}
+
+function attachDodgeHandlers(btn) {
+  try {
+    /* Hapus listener lama */
+    const fresh = btn.cloneNode(true);
+    btn.parentNode.replaceChild(fresh, btn);
+    btn = document.getElementById("btn-no");
+
+    let lastDodgeTime = 0;
+
+    function tryDodge(e) {
+      /* Kalau rejection sudah tampil, abaikan */
+      if (STATE.rejectionShown) return;
+
+      const now = Date.now();
+      if (now - lastDodgeTime < 300) return; /* debounce 300ms */
+
+      if (STATE.dodgeCount >= 5) {
+        /* Sudah 5 kali kabur — klik normal → tampil pesan */
+        return;
+      }
+
+      /* Jalankan dodge */
+      e.preventDefault();
+      lastDodgeTime = now;
+      STATE.dodgeCount++;
+
+      /* Ganti label */
+      const labelIdx = STATE.dodgeCount - 1;
+      btn.textContent = CONFIG.dodgeLabels[labelIdx];
+
+      /* Kabur ke posisi random */
+      dodgeToRandom(btn);
+
+      announce("Tombol kabur ke posisi baru");
+
+      /* Kalau ini kabur ke-5, setelah animasi selesai aktifkan klik */
+      if (STATE.dodgeCount >= 5) {
+        setTimeout(() => {
+          btn.textContent = CONFIG.dodgeLabels[4];
+          announce("Tombol sudah bisa diklik");
+        }, 300);
+      }
+    }
+
+    /* pointerenter → dodge untuk mouse hover */
+    btn.addEventListener("pointerenter", (e) => {
+      if (e.pointerType === "mouse") tryDodge(e);
+    });
+
+    /* pointerdown → dodge untuk sentuhan */
+    btn.addEventListener("pointerdown", (e) => {
+      if (e.pointerType === "touch" || e.pointerType === "pen") tryDodge(e);
+    });
+
+    /* keyboard activation */
+    btn.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        if (STATE.dodgeCount < 5) tryDodge(e);
+      }
+    });
+
+    /* click → hanya setelah 5 kali kabur */
+    btn.addEventListener("click", (e) => {
+      if (STATE.dodgeCount < 5) {
+        e.preventDefault();
+        return;
+      }
+      showRejection();
+    });
+
+  } catch(e) { console.error("[attachDodgeHandlers]", e); }
+}
+
+function dodgeToRandom(btn) {
+  try {
+    const margin  = 8;
+    const btnW    = btn.offsetWidth  || 110;
+    const btnH    = btn.offsetHeight || 44;
+    const vw      = window.innerWidth;
+    const vh      = window.innerHeight;
+
+    /* Dapatkan rect btn-yes untuk menghindari overlap */
+    const yes = document.getElementById("btn-yes");
+    const yesRect = yes ? yes.getBoundingClientRect() : null;
+
+    let left, top, tries = 0;
+
+    do {
+      left = margin + Math.random() * (vw - btnW - margin * 2);
+      top  = margin + Math.random() * (vh - btnH - margin * 2);
+      tries++;
+
+      if (tries > 20) break;
+
+      /* Cek overlap dengan btn-yes */
+      if (yesRect) {
+        const noL = left, noR = left + btnW, noT = top, noB = top + btnH;
+        const overlap = noR > yesRect.left - 8 && noL < yesRect.right + 8 &&
+                        noB > yesRect.top  - 8 && noT < yesRect.bottom + 8;
+        if (overlap) continue;
+      }
+      break;
+    } while (true);
+
+    /* Clamp agar tidak keluar layar */
+    left = Math.max(margin, Math.min(vw - btnW - margin, left));
+    top  = Math.max(margin, Math.min(vh - btnH - margin, top));
+
+    btn.style.left = left + "px";
+    btn.style.top  = top  + "px";
+
+  } catch(e) { console.error("[dodgeToRandom]", e); }
+}
+
+function showRejection() {
+  try {
+    if (STATE.rejectionShown) return;
+    STATE.rejectionShown = true;
+
+    /* Sembunyikan btn-no */
+    const btnNo = document.getElementById("btn-no");
+    if (btnNo) btnNo.setAttribute("hidden", "");
+
+    /* Buat overlay */
+    const overlay = document.createElement("div");
+    overlay.id = "rejection-overlay";
+    overlay.setAttribute("role", "dialog");
+    overlay.setAttribute("aria-modal", "true");
+    overlay.setAttribute("aria-label", CONFIG.rejectionMsg);
+
+    const msg = document.createElement("div");
+    msg.className = "rejection-msg";
+
+    const h = document.createElement("p");
+    h.textContent = CONFIG.rejectionMsg;
+
+    const s = document.createElement("span");
+    s.textContent = CONFIG.rejectionSub;
+
+    const closeBtn = document.createElement("button");
+    closeBtn.className = "btn btn-ghost";
+    closeBtn.textContent = CONFIG.rejectionClose;
+    closeBtn.onclick = () => {
+      document.body.removeChild(overlay);
+      /* Kembalikan btn-no ke tampilan normal (tidak diperlukan, tapi bersih) */
+      announce("Pesan ditutup");
+    };
+
+    msg.append(h, s, closeBtn);
+    overlay.append(msg);
+    document.body.append(overlay);
+
+    setTimeout(() => closeBtn.focus(), 50);
+    announce(CONFIG.rejectionMsg + " " + CONFIG.rejectionSub);
+
+  } catch(e) { console.error("[showRejection]", e); }
+}
+
+/* =========================================================
+   SCENE 5 — YES / CONFETTI / TICKET
+   ========================================================= */
+function initScene5() {
+  try {
+    const title = document.getElementById("s5-title");
+    const sub   = document.getElementById("s5-sub");
+    title.textContent = STATE.to + CONFIG.yesTitle;
+    sub.textContent   = CONFIG.yesSub;
+
+    /* Sembunyikan btn-no jika masih ada */
+    const btnNo = document.getElementById("btn-no");
+    if (btnNo) btnNo.setAttribute("hidden", "");
+
+    /* Build dropdown tempat */
+    const sel = document.getElementById("select-place");
+    sel.innerHTML = "";
+    const defOpt = document.createElement("option");
+    defOpt.value = "";
+    defOpt.textContent = CONFIG.placeDefault;
+    sel.append(defOpt);
+    CONFIG.places.forEach(p => {
+      const opt = document.createElement("option");
+      opt.value = p;
+      opt.textContent = p;
+      sel.append(opt);
+    });
+
+    /* Reset date & error */
+    const dateInput = document.getElementById("input-date");
+    const dateErr   = document.getElementById("date-error");
+    dateInput.value = "";
+    dateErr.setAttribute("hidden", "");
+    dateErr.textContent = "";
+
+    /* Tombol konfirmasi WA */
+    const btnWa = document.getElementById("btn-wa");
+    btnWa.textContent = CONFIG.confirmBtn;
+    btnWa.onclick = handleWhatsApp;
+
+    /* Confetti atau fade */
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReduced) {
+      /* Fade sederhana — scene sudah ada fade dari goToScene */
+      announce(STATE.to + CONFIG.yesTitle);
+    } else {
+      setTimeout(() => launchConfetti(), 100);
+    }
+
+  } catch(e) { console.error("[initScene5]", e); }
+}
+
+function handleWhatsApp() {
+  try {
+    const sel  = document.getElementById("select-place");
+    const date = document.getElementById("input-date");
+    const err  = document.getElementById("date-error");
+
+    err.setAttribute("hidden", "");
+    err.textContent = "";
+
+    if (!date.value) {
+      err.textContent = CONFIG.errorNoDate;
+      err.removeAttribute("hidden");
+      date.focus();
+      announce(CONFIG.errorNoDate);
+      return;
+    }
+
+    const place      = sel.value || CONFIG.places[0];
+    const dateFormatted = formatDate(date.value);
+    const msg        = CONFIG.waMessage(STATE.to, STATE.from, place, dateFormatted);
+    const encoded    = encodeURIComponent(msg);
+    const phone      = CONFIG.phone ? CONFIG.phone.replace(/\D/g, "") : "";
+    const url        = phone
+      ? `https://wa.me/${phone}?text=${encoded}`
+      : `https://wa.me/?text=${encoded}`;
+
+    window.open(url, "_blank", "noopener,noreferrer");
+  } catch(e) { console.error("[handleWhatsApp]", e); }
+}
+
+/* =========================================================
+   CONFETTI — canvas implementation
+   ========================================================= */
+function launchConfetti() {
+  try {
+    const canvas = document.getElementById("confetti-canvas");
+    const ctx    = canvas.getContext("2d");
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const colors = ["#f472b6","#a78bfa","#34d399","#fbbf24","#60a5fa","#fb7185"];
+    const COUNT  = 120;
+    const particles = [];
+
+    for (let i = 0; i < COUNT; i++) {
+      particles.push({
+        x:    Math.random() * canvas.width,
+        y:    Math.random() * canvas.height - canvas.height,
+        w:    6 + Math.random() * 8,
+        h:    4 + Math.random() * 6,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        rot:  Math.random() * Math.PI * 2,
+        vx:   (Math.random() - .5) * 2,
+        vy:   2 + Math.random() * 3,
+        vr:   (Math.random() - .5) * .15,
+      });
+    }
+
+    let frame;
+    let startTime = Date.now();
+    const DURATION = 3500; /* ms */
+
+    function draw() {
+      const elapsed = Date.now() - startTime;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      let alive = false;
+      particles.forEach(p => {
+        if (p.y > canvas.height + 20) return;
+        alive = true;
+        p.x  += p.vx;
+        p.y  += p.vy;
+        p.rot += p.vr;
+
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = elapsed < DURATION ? 1 : Math.max(0, 1 - (elapsed - DURATION) / 500);
+        ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        ctx.restore();
+      });
+
+      if (alive && elapsed < DURATION + 600) {
+        frame = requestAnimationFrame(draw);
+      } else {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        cancelAnimationFrame(frame);
+      }
+    }
+
+    frame = requestAnimationFrame(draw);
+  } catch(e) { console.error("[launchConfetti]", e); }
+}
+
+/* =========================================================
+   ENTRY POINT — baca ?scene= dan mulai
+   ========================================================= */
+(function init() {
+  try {
+    const p = new URLSearchParams(window.location.search);
+    const sceneParam = parseInt(p.get("scene"), 10);
+
+    /* ✅ (b) Semua scene bisa dicapai lewat ?scene=
+       Scene 4 adalah perilaku tombol "Nggak dulu" di dalam scene 3,
+       bukan scene terpisah — ?scene=4 diarahkan ke scene 3. */
+    if (sceneParam === 4) {
+      goToScene(3);
+    } else if (sceneParam >= 1 && sceneParam <= 5) {
+      goToScene(sceneParam);
+    } else {
+      goToScene(1);
+    }
+  } catch(e) { console.error("[init]", e); }
+})();
+</script>
+</body>
+</html>

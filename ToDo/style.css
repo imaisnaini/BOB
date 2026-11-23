@@ -1,0 +1,183 @@
+/* ============================================================
+   style.css — Task List  (supplemental styles for Tailwind)
+   Only styles that cannot be expressed cleanly in Tailwind
+   utility classes live here.
+   ============================================================ */
+
+/* ---- Custom shadow token ---------------------------------- */
+.shadow-card {
+  box-shadow:
+    0 1px 3px 0 rgba(0, 0, 0, 0.07),
+    0 4px 20px 0 rgba(29, 78, 216, 0.08);
+}
+
+/* ---- Filter tab buttons ----------------------------------- */
+.filter-btn {
+  padding: 0.3rem 0.9rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #64748b;         /* slate-500 */
+  transition: background-color 0.15s, color 0.15s;
+  cursor: pointer;
+}
+
+.filter-btn:hover {
+  background-color: #eff6ff; /* brand-blue-bg */
+  color: #1D4ED8;             /* brand-blue */
+}
+
+.filter-btn--active {
+  background-color: #1D4ED8;  /* brand-blue */
+  color: #ffffff;
+}
+
+.filter-btn--active:hover {
+  background-color: #3B82F6;  /* brand-blue-light */
+  color: #ffffff;
+}
+
+/* ---- Task list item --------------------------------------- */
+.task-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0.75rem;
+  border-radius: 0.75rem;
+  margin: 0.15rem 0;
+  transition: background-color 0.15s;
+}
+
+.task-item:hover {
+  background-color: #f8fafc; /* slate-50 */
+}
+
+/* ---- Custom checkbox -------------------------------------- */
+.task-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  flex-shrink: 0;
+  width: 1.2rem;
+  height: 1.2rem;
+  border: 2px solid #cbd5e1;  /* slate-300 */
+  border-radius: 0.4rem;
+  cursor: pointer;
+  position: relative;
+  transition: border-color 0.15s, background-color 0.15s;
+}
+
+.task-checkbox:hover {
+  border-color: #3B82F6;      /* brand-blue-light */
+}
+
+.task-checkbox:checked {
+  background-color: #1D4ED8;  /* brand-blue */
+  border-color: #1D4ED8;
+}
+
+/* Checkmark via SVG background */
+.task-checkbox:checked::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.5 5l2.5 2.5 4.5-4.5' stroke='white' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/0.75rem no-repeat;
+}
+
+/* ---- Task title text -------------------------------------- */
+.task-title {
+  flex: 1;
+  font-size: 0.875rem;        /* text-sm */
+  color: #334155;             /* slate-700 */
+  word-break: break-word;
+  transition: color 0.15s, text-decoration 0.15s;
+}
+
+.task-title--completed {
+  color: #94a3b8;             /* slate-400 */
+  text-decoration: line-through;
+  text-decoration-color: #cbd5e1;
+}
+
+/* ---- Action buttons (edit / delete) ----------------------- */
+.btn-action {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 0.5rem;
+  transition: background-color 0.15s, color 0.15s, transform 0.1s;
+  cursor: pointer;
+  color: #94a3b8;             /* slate-400 */
+}
+
+.btn-action:hover {
+  color: #1D4ED8;             /* brand-blue */
+  background-color: #eff6ff;
+}
+
+.btn-action--delete:hover {
+  color: #ef4444;             /* red-500 */
+  background-color: #fef2f2;
+}
+
+.btn-action:active {
+  transform: scale(0.9);
+}
+
+/* ---- Edit Modal ------------------------------------------- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.45); /* slate-900/45 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 50;
+  backdrop-filter: blur(2px);
+  animation: fadeIn 0.15s ease;
+}
+
+.modal-overlay.hidden {
+  display: none;
+}
+
+.modal-box {
+  background: #ffffff;
+  border-radius: 1.25rem;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 26rem;
+  box-shadow:
+    0 20px 60px 0 rgba(29, 78, 216, 0.15),
+    0 2px 8px 0 rgba(0, 0, 0, 0.1);
+  animation: slideUp 0.18s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+/* ---- Add button (extra specificity for hover ring) --------- */
+.btn-add:focus-visible {
+  outline: 2px solid #F97316;
+  outline-offset: 2px;
+}
+
+/* ---- Smooth entrance for new task items ------------------- */
+@keyframes taskIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+.task-item--new {
+  animation: taskIn 0.2s ease forwards;
+}
